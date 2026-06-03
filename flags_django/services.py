@@ -211,6 +211,18 @@ class FlagService:
         return queryset
 
 
+def _required_rule_field(data: dict[str, Any], field: str) -> Any:
+    if field not in data:
+        raise FlagValidationError([f"missing required field: {field}"])
+    return data[field]
+
+
+def _coerce_rule_order(order: Any, fallback: int) -> int:
+    if order is None:
+        return fallback
+    return coerce_strict_int(order, "order")
+
+
 class RuleService:
     @staticmethod
     def add_rule(
@@ -220,17 +232,15 @@ class RuleService:
         with transaction.atomic():
             flag = _locked_flag(env.slug, flag_key)
             before = flag_model_to_dict(flag)
-            order = data.get("order")
-            if order is None:
-                max_order = flag.rules.aggregate(max_order=Max("order"))["max_order"] or 0
-                order = max_order + 1
+            max_order = flag.rules.aggregate(max_order=Max("order"))["max_order"] or 0
+            order = _coerce_rule_order(data.get("order"), max_order + 1)
             rule = FlagRule(
                 flag=flag,
-                order=int(order),
-                attribute=data["attribute"],
-                operator=data["operator"],
-                value=data["value"],
-                result=coerce_strict_bool(data["result"], "result"),
+                order=order,
+                attribute=_required_rule_field(data, "attribute"),
+                operator=_required_rule_field(data, "operator"),
+                value=_required_rule_field(data, "value"),
+                result=coerce_strict_bool(_required_rule_field(data, "result"), "result"),
             )
             proposed_rules = _rule_definitions_from_models(flag) + [
                 _rule_definition_from_unsaved(rule)

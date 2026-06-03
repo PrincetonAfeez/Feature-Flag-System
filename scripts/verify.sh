@@ -20,6 +20,9 @@ mypy
 echo "==> makemigrations --check"
 python manage.py makemigrations --check --dry-run
 
+echo "==> pip-audit"
+pip-audit -r requirements.txt
+
 echo "==> pytest"
 pytest --cov=flags_core --cov=flags_django --cov-fail-under=99
 

@@ -409,3 +409,59 @@ def test_add_rule_duplicate_order_raises_validation_error():
                 "result": True,
             },
         )
+
+
+@pytest.mark.django_db
+def test_add_rule_missing_attribute_raises_validation_error():
+    _create()
+    with pytest.raises(FlagValidationError, match="missing required field: attribute"):
+        RuleService.add_rule(
+            "production",
+            "new_checkout",
+            {"operator": "equals", "value": "x", "result": True},
+        )
+
+
+@pytest.mark.django_db
+def test_add_rule_missing_result_raises_validation_error():
+    _create()
+    with pytest.raises(FlagValidationError, match="missing required field: result"):
+        RuleService.add_rule(
+            "production",
+            "new_checkout",
+            {"attribute": "plan", "operator": "equals", "value": "x"},
+        )
+
+
+@pytest.mark.django_db
+def test_add_rule_invalid_order_string_raises_validation_error():
+    _create()
+    with pytest.raises(FlagValidationError, match="order must be an integer"):
+        RuleService.add_rule(
+            "production",
+            "new_checkout",
+            {
+                "order": "abc",
+                "attribute": "plan",
+                "operator": "equals",
+                "value": "x",
+                "result": True,
+            },
+        )
+
+
+@pytest.mark.django_db
+def test_add_rule_invalid_order_bool_raises_validation_error():
+    _create()
+    with pytest.raises(FlagValidationError, match="order must be an integer"):
+        RuleService.add_rule(
+            "production",
+            "new_checkout",
+            {
+                "order": True,
+                "attribute": "plan",
+                "operator": "equals",
+                "value": "x",
+                "result": True,
+            },
+        )

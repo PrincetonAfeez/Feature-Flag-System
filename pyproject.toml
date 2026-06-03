@@ -45,9 +45,9 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/YOUR_GITHUB_USERNAME/feature-flag-system/blob/main/docs/report.md"
-Source = "https://github.com/YOUR_GITHUB_USERNAME/feature-flag-system"
-Changelog = "https://github.com/YOUR_GITHUB_USERNAME/feature-flag-system/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/PrincetonAfeez/Feature-Flag-System/blob/main/docs/report.md"
+Source = "https://github.com/PrincetonAfeez/Feature-Flag-System"
+Changelog = "https://github.com/PrincetonAfeez/Feature-Flag-System/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["flags_core*", "flags_django*", "feature_flags_project*"]

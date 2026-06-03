@@ -153,6 +153,78 @@ def test_eval_debug_missing_flag_key_returns_400(client, django_user_model):
     )
 
     assert response.status_code == 400
+    assert response.json()["error"] == "flag_key must be a non-empty string"
+
+
+@pytest.mark.django_db
+def test_eval_debug_rejects_boolean_flag_key(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_fk_bool", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": True, "context": {}},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "flag_key must be a non-empty string"
+
+
+@pytest.mark.django_db
+def test_eval_debug_rejects_list_flag_key(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_fk_list", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": [], "context": {}},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "flag_key must be a non-empty string"
+
+
+@pytest.mark.django_db
+def test_eval_debug_rejects_empty_string_flag_key(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_fk_empty", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": "", "context": {}},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "flag_key must be a non-empty string"
+
+
+@pytest.mark.django_db
+def test_eval_debug_accepts_string_flag_key(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_fk_str", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    FlagService.create_flag(
+        {
+            "environment": "production",
+            "key": "new_checkout",
+            "name": "New Checkout",
+            "default": False,
+            "rollout_percentage": 100,
+            "enabled": True,
+        }
+    )
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": "new_checkout", "context": {"user_id": "u1"}},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["flag_key"] == "new_checkout"
 
 
 @pytest.mark.django_db
@@ -217,6 +289,84 @@ def test_eval_debug_returns_500_when_flag_definition_is_corrupt(client, django_u
 
     assert response.status_code == 500
     assert "default must be a boolean" in response.json()["error"]
+
+
+@pytest.mark.django_db
+def test_eval_debug_rejects_list_context(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_ctx_list", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    FlagService.create_flag(
+        {
+            "environment": "production",
+            "key": "new_checkout",
+            "name": "New Checkout",
+            "default": False,
+            "rollout_percentage": 100,
+            "enabled": True,
+        }
+    )
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": "new_checkout", "context": []},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "context must be a JSON object"
+
+
+@pytest.mark.django_db
+def test_eval_debug_rejects_string_context(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_ctx_str", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    FlagService.create_flag(
+        {
+            "environment": "production",
+            "key": "new_checkout",
+            "name": "New Checkout",
+            "default": False,
+            "rollout_percentage": 100,
+            "enabled": True,
+        }
+    )
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": "new_checkout", "context": "bad"},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "context must be a JSON object"
+
+
+@pytest.mark.django_db
+def test_eval_debug_omitted_context_still_works(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin_ctx_omit", password="pw", is_staff=True)
+    client.force_login(staff)
+
+    FlagService.create_flag(
+        {
+            "environment": "production",
+            "key": "new_checkout",
+            "name": "New Checkout",
+            "default": False,
+            "rollout_percentage": 0,
+            "enabled": True,
+        }
+    )
+
+    response = client.post(
+        reverse("flag-eval-debug", kwargs={"env": "production"}),
+        data={"flag_key": "new_checkout"},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["value"] is False
 
 
 @pytest.mark.django_db

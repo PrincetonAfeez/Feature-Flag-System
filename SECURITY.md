@@ -15,7 +15,7 @@ open public issues with exploit details.
 ## Threat model (MVP)
 
 The MVP targets **trusted local / development** use. See README **Threat model**
-and [docs/api.md](api.md).
+and [docs/api.md](docs/api.md).
 
 **In scope for MVP:**
 

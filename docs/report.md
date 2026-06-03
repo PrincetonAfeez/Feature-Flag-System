@@ -97,8 +97,7 @@ core**. `flags_core` has zero Django imports (enforced by
 | Metric | Value | Evidence |
 |--------|-------|----------|
 | Automated tests | 211 | `pytest` (see CI) |
-| Line coverage | 100% | `flags_core` + `flags_django` |
-| Line coverage | ≥ 90% (CI floor), ~96% typical | `pytest --cov`, CI artifact `htmlcov/` |
+| Line coverage | 100%; CI floor 99% | pyproject.toml / CI |
 | Python versions | 3.12 – 3.14 | `.github/workflows/ci.yml` |
 | Runtime lock | Django 5.2.14 | `requirements.txt` |
 | ADRs | 6 | `docs/adr/` |

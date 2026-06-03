@@ -20,6 +20,9 @@ mypy
 Write-Host "==> makemigrations --check"
 python manage.py makemigrations --check --dry-run
 
+Write-Host "==> pip-audit"
+pip-audit -r requirements.txt
+
 Write-Host "==> pytest"
 pytest --cov=flags_core --cov=flags_django --cov-fail-under=99
 

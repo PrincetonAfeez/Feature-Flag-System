@@ -71,16 +71,26 @@ def eval_debug(request: HttpRequest, env: str) -> JsonResponse:
     except json.JSONDecodeError:
         return JsonResponse({"error": "invalid JSON body"}, status=400)
 
-    if not isinstance(payload, dict) or not payload.get("flag_key"):
-        return JsonResponse({"error": "flag_key is required"}, status=400)
+    if not isinstance(payload, dict):
+        return JsonResponse({"error": "flag_key must be a non-empty string"}, status=400)
+
+    flag_key = payload.get("flag_key")
+    if not isinstance(flag_key, str) or not flag_key.strip():
+        return JsonResponse({"error": "flag_key must be a non-empty string"}, status=400)
+
+    context_payload = payload.get("context", {})
+    if context_payload is None:
+        context_payload = {}
+    if not isinstance(context_payload, dict):
+        return JsonResponse({"error": "context must be a JSON object"}, status=400)
 
     try:
-        context = EvaluationContext.from_mapping(payload.get("context", {}))
+        context = EvaluationContext.from_mapping(context_payload)
     except ValueError as exc:
         return JsonResponse({"error": str(exc)}, status=400)
 
     try:
-        result = EvaluationService.evaluate_from_db(env, payload["flag_key"], context)
+        result = EvaluationService.evaluate_from_db(env, flag_key, context)
     except (FlagNotFoundError, EnvironmentNotFoundError) as exc:
         return JsonResponse({"error": str(exc)}, status=404)
     except FlagValidationError as exc:

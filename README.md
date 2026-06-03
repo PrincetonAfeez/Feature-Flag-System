@@ -1,6 +1,6 @@
 # Feature Flag System
 
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/feature-flag-system/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/feature-flag-system/actions/workflows/ci.yml)
+[![CI](https://github.com/PrincetonAfeez/Feature-Flag-System/actions/workflows/ci.yml/badge.svg)](https://github.com/PrincetonAfeez/Feature-Flag-System/actions/workflows/ci.yml)
 
 **Version 0.1.3** · **211 tests** · **100% coverage** · **Python 3.12–3.14**
 
@@ -11,9 +11,6 @@ The central idea: given a flag definition and an evaluation context, return a
 same way across every surface (CLI, API, and the future client SDK).
 
 **Academic report:** [docs/report.md](docs/report.md) · **Demo guide:** [docs/demo.md](docs/demo.md) · **Changelog:** [CHANGELOG.md](CHANGELOG.md)
-
-> Replace `YOUR_GITHUB_USERNAME/feature-flag-system` in the CI badge and
-> `pyproject.toml` `[project.urls]` after publishing the repository.
 
 ## What ships in 0.1.x
 
@@ -154,6 +151,13 @@ Also: `get`, `update`, `delete`, `disable`, `kill` / `unkill`, `rule-delete`.
 Run `python manage.py flagctl --help` and `flagctl --version` (reports **0.1.3**,
 not Django’s version). `create` prints `created` or `recreated` when reusing an
 archived row.
+
+### CLI exit behavior
+
+`flagctl` exits with `0` when a command succeeds. It exits non-zero for usage errors,
+validation errors, missing environments, missing flags, missing rules, or runtime
+command failures. Errors are reported through Django `CommandError`; normal CLI use
+does not show raw debug tracebacks.
 
 ## API
 
