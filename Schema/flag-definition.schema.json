@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/feature-flag-system/schema/flag-definition.schema.json",
+  "title": "Feature Flag Definition",
+  "description": "Canonical feature flag definition consumed by the pure evaluation core and exposed in snapshot payloads.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "key",
+    "name",
+    "environment",
+    "enabled",
+    "kill_switch",
+    "default",
+    "rollout_percentage",
+    "rules",
+    "version"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Stable flag identifier. Lowercase letters, numbers, and underscores only."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "environment": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$",
+      "description": "Environment slug such as production, staging, or dev."
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "kill_switch": {
+      "type": "boolean"
+    },
+    "default": {
+      "type": "boolean"
+    },
+    "rollout_percentage": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "rules": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    }
+  },
+  "$defs": {
+    "rule": {
+      "title": "Targeting Rule Definition",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "order",
+        "attribute",
+        "operator",
+        "value",
+        "result"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "attribute": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "not_equals",
+            "in",
+            "not_in",
+            "contains",
+            "startswith",
+            "endswith",
+            "greater_than",
+            "greater_than_or_equal",
+            "less_than",
+            "less_than_or_equal"
+          ]
+        },
+        "value": {
+          "description": "Comparison value. Operator-specific validation is enforced by runtime code; this schema allows JSON scalar, array, object, or null for portability."
+        },
+        "result": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "const": "in"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "array"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "const": "not_in"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "array"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "const": "contains"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "enum": [
+                  "startswith",
+                  "endswith"
+                ]
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "enum": [
+                  "greater_than",
+                  "greater_than_or_equal",
+                  "less_than",
+                  "less_than_or_equal"
+                ]
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^-?\\\\d+(\\\\.\\\\d+)?$"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

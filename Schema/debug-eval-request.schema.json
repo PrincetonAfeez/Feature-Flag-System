@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/feature-flag-system/schema/debug-eval-request.schema.json",
+  "title": "Debug Evaluation Request",
+  "description": "Request body for POST /api/v1/environments/{env}/eval/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "flag_key",
+    "context"
+  ],
+  "properties": {
+    "flag_key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "context": {
+      "type": "object",
+      "description": "Evaluation context. user_id may be string or integer; additional keys become targeting attributes.",
+      "additionalProperties": true,
+      "properties": {
+        "user_id": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

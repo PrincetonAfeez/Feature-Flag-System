@@ -1,0 +1,27 @@
+{
+  "environment": "production",
+  "version": 3,
+  "generated_at": "2026-05-26T18:53:00.123456+00:00",
+  "flags": {
+    "new_checkout": {
+      "key": "new_checkout",
+      "name": "New Checkout",
+      "environment": "production",
+      "enabled": true,
+      "kill_switch": false,
+      "default": false,
+      "rollout_percentage": 25,
+      "rules": [
+        {
+          "id": "1",
+          "order": 1,
+          "attribute": "plan",
+          "operator": "equals",
+          "value": "premium",
+          "result": true
+        }
+      ],
+      "version": 2
+    }
+  }
+}

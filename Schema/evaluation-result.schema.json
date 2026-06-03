@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/feature-flag-system/schema/evaluation-result.schema.json",
+  "title": "Evaluation Result",
+  "description": "Result returned by the pure evaluator and by the staff-only debug eval endpoint.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "flag_key",
+    "value",
+    "reason",
+    "matched_rule_id",
+    "bucket",
+    "default_used",
+    "error"
+  ],
+  "properties": {
+    "flag_key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "value": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "kill_switch",
+        "flag_disabled",
+        "targeting_match",
+        "rollout_zero",
+        "percentage_rollout",
+        "missing_context",
+        "default",
+        "error"
+      ]
+    },
+    "matched_rule_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bucket": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 99
+    },
+    "default_used": {
+      "type": "boolean"
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
